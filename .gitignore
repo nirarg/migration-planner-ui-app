@@ -26,3 +26,5 @@ coverage
 
 .yalc
 yalc.lock
+
+docker-config/

@@ -1,0 +1,46 @@
+# deploy/prod/Containerfile
+FROM registry.access.redhat.com/ubi9/nginx-120
+
+# Optional: Custom NGINX config for single-page apps (React, Vue, etc.)
+# COPY deploy/prod/nginx.conf /etc/nginx/nginx.conf
+
+# Copy built app from host into container
+COPY dist/ /usr/share/nginx/html/
+
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]
+
+## -----------------------------
+## Build Stage
+## -----------------------------
+#FROM registry.access.redhat.com/ubi9/nodejs-20 AS builder
+#
+#USER root
+#WORKDIR /app
+#
+## Install dependencies
+#COPY package*.json ./
+#RUN npm install
+#
+## Copy source code
+#COPY . .
+#
+## Build the static app
+#RUN npm run build
+#
+## -----------------------------
+## Runtime Stage (NGINX)
+## -----------------------------
+#FROM registry.access.redhat.com/ubi9/nginx-120
+#
+## Copy NGINX config for SPA fallback (optional but recommended)
+#COPY deploy/dev/nginx.conf /etc/nginx/nginx.conf
+#
+## Copy built static files
+#COPY --from=builder /app/dist /usr/share/nginx/html
+#
+#EXPOSE 8080
+#CMD ["nginx", "-g", "daemon off;"]
+#
+## Instead, drop into the container
+#CMD ["/bin/bash"]
