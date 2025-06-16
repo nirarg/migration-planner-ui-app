@@ -43,7 +43,7 @@ podman-push:
 	fi;
 
 deploy-on-openshift:
-	oc process -f deploy/ui-template.yaml \
+	oc process -f deploy/dev/ui-template.yaml \
 		   -p MIGRATION_PLANNER_UI_IMAGE=$(IMAGE) \
 		   -p MIGRATION_PLANNER_REPLICAS=$(REPLICAS) \
 		   -p IMAGE_TAG=$(IMAGE_TAG) \
