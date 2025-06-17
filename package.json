@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "fec build",
+    "build:standalone": "esbuild src/AppStandaloneEntry.tsx --bundle --outfile=dist/standalone.js --platform=browser --define:process.env.NODE_ENV='\"development\"'",
     "clean": "rimraf node_modules dist .cache",
     "copy-static": "cp -r public/* dist/",
     "deploy": "npm-run-all build lint test",
@@ -65,6 +66,7 @@
     "@types/redux-logger": "^3.0.13",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "esbuild": "^0.25.5",
     "eslint": "^8.57.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "identity-obj-proxy": "^3.0.0",

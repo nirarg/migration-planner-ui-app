@@ -22,8 +22,8 @@ endif
 
 build:
 	rm -rf dist
-	npm install
-	npm run build
+	npm install --save-dev esbuild
+	npm run build:standalone
 	cp deploy/dev/index.html dist/index.html
 
 podman-build:

@@ -2,38 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Standalone FEC App</title>
+  <title>Standalone App</title>
 </head>
 <body>
   <div id="root"></div>
-
-  <!-- Simulate the Chrome host -->
-  <script>
-    window.insights = {
-      chrome: {
-        init: () => {},
-        identifyApp: () => {},
-        isBeta: () => false,
-        on: () => {},
-      }
-    };
-
-    // This fakes the host function that normally loads your app
-    window.__load_plugin_entry__ = function (pluginName) {
-      if (window[pluginName] && typeof window[pluginName].default === 'function') {
-        window[pluginName].default(); // this calls your app's entrypoint
-      } else {
-        console.error('Could not find plugin', pluginName);
-      }
-    };
-  </script>
-
-  <!-- Load your app -->
-  <script src="/assistedMigrationApp.c3e59beb8aba329da552.js"></script>
-
-  <!-- Trigger the app bootstrap -->
-  <script>
-    __load_plugin_entry__('assistedMigrationApp');
+  <script type="module">
+    import('/standalone.js'); // see next step
   </script>
 </body>
 </html>
+
