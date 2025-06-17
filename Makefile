@@ -24,6 +24,7 @@ build:
 	rm -rf dist
 	npm install
 	npm run build
+	cp deploy/dev/index.html dist/index.html
 
 podman-build:
 	$(PODMAN) build . -t $(IMAGE):$(IMAGE_TAG) -f deploy/dev/Containerfile --arch amd64 --memory=4g

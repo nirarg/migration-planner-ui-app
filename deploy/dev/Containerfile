@@ -14,7 +14,7 @@ RUN chmod -R 755 /usr/share/nginx/html && \
 EXPOSE 8080
 
 # Copy a custom nginx config
-COPY deploy/dev/nginx.conf /etc/nginx/nginx.config
+COPY deploy/dev/nginx.conf /etc/nginx/nginx.conf
 
 # Switch back to nginx user (best practice)
 USER nginx
