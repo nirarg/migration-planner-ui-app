@@ -22,7 +22,7 @@ endif
 
 build:
 	rm -rf dist
-	npm install --save-dev esbuild
+	npm install --save-dev esbuild esbuild-plugin-sass
 	npm run build:standalone
 	cp deploy/dev/index.html dist/index.html
 
