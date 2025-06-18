@@ -1,14 +1,19 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { Spinner } from "@patternfly/react-core";
-import { Container } from "@migration-planner-ui/ioc";
-import { Provider as DependencyInjectionProvider } from "@migration-planner-ui/ioc";
-import { Configuration } from "@migration-planner-ui/api-client/runtime";
-import { AgentApi } from "@migration-planner-ui/agent-client/apis";
-import { ImageApi, SourceApi } from "@migration-planner-ui/api-client/apis";
-import Routing from "./Routing";
-import { Symbols } from "./main/Symbols";
+import React, { Fragment, useEffect, useState } from 'react';
+import { Spinner, Page, PageHeader } from '@patternfly/react-core';
+import { Main } from '@redhat-cloud-services/frontend-components';
+import { Container } from '@migration-planner-ui/ioc';
+import { Provider as DependencyInjectionProvider } from '@migration-planner-ui/ioc';
+import { Configuration } from '@migration-planner-ui/api-client/runtime';
+import { AgentApi } from '@migration-planner-ui/agent-client/apis';
+import { ImageApi, SourceApi } from '@migration-planner-ui/api-client/apis';
+import Routing from './Routing';
+import { Symbols } from './main/Symbols';
 
-// 🔁 Replaces useChrome() + createAuthFetch()
+// 👉 Include styles manually
+import '@patternfly/react-core/dist/styles/base.css';
+import '@redhat-cloud-services/frontend-components/index.css'; // if used in prod
+
+// 👉 Simple fetch to replace createAuthFetch in standalone mode
 const mockAuthFetch = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
   return fetch(input, init);
 };
@@ -39,13 +44,15 @@ const AppStandalone = () => {
   }
 
   return (
-    <Fragment>
-      <DependencyInjectionProvider container={container}>
-        <React.Suspense fallback={<Spinner />}>
-          <Routing />
-        </React.Suspense>
-      </DependencyInjectionProvider>
-    </Fragment>
+    <Page header={<PageHeader logo="Migration Planner" />}>
+      <Main>
+        <DependencyInjectionProvider container={container}>
+          <React.Suspense fallback={<Spinner />}>
+            <Routing />
+          </React.Suspense>
+        </DependencyInjectionProvider>
+      </Main>
+    </Page>
   );
 };
 
