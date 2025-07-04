@@ -48,11 +48,29 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   const [createSourceState, createSource] = useAsyncFn(
     async (name: string, sshPublicKey: string, httpProxy:string, httpsProxy:string, noProxy: string) => {
       try {
-        return await sourceApi.createSource({ sourceCreate: { name, sshPublicKey, proxy: {
-          httpUrl: httpProxy,
-          httpsUrl: httpsProxy,
-          noProxy: noProxy          
-        } } });
+        // Clean up proxy URLs - convert empty strings to null for API validation
+        const cleanHttpUrl = httpProxy && httpProxy.trim() !== '' ? httpProxy.trim() : null;
+        const cleanHttpsUrl = httpsProxy && httpsProxy.trim() !== '' ? httpsProxy.trim() : null;
+        const cleanNoProxy = noProxy && noProxy.trim() !== '' ? noProxy.trim() : null;
+        
+        // Clean up SSH key
+        const cleanSshKey = sshPublicKey && sshPublicKey.trim() !== '' ? sshPublicKey.trim() : null;
+        
+        // Build the request object conditionally
+        const sourceCreate: any = { 
+          name: name.trim(), 
+          sshPublicKey: cleanSshKey 
+        };
+        
+        // Only add proxy object if at least one proxy field has a value
+        if (cleanHttpUrl || cleanHttpsUrl || cleanNoProxy) {
+          sourceCreate.proxy = {};
+          if (cleanHttpUrl) sourceCreate.proxy.httpUrl = cleanHttpUrl;
+          if (cleanHttpsUrl) sourceCreate.proxy.httpsUrl = cleanHttpsUrl;
+          if (cleanNoProxy) sourceCreate.proxy.noProxy = cleanNoProxy;
+        }
+        
+        return await sourceApi.createSource({ sourceCreate });
       } catch (error: unknown) {
         console.error("Error creating source:", error);
   
