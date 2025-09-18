@@ -78,7 +78,7 @@ export const DiscoverySourceSetupModal: React.FC<
     setSshKeyError(validateSshKey(value));
   };
 
-  const resetForm = (): void => {
+  const resetForm = useCallback((): void => {
     setSshKey('');
     setSshKeyError(null);
     setShowUrl(false);
@@ -92,7 +92,7 @@ export const DiscoverySourceSetupModal: React.FC<
     discoverySourcesContext.setDownloadUrl('');
     discoverySourcesContext.deleteSourceCreated();
     discoverySourcesContext.errorDownloadingSource = null;
-  };
+  }, [discoverySourcesContext]);
 
   const backToOvaConfiguration = (): void => {
     setShowUrl(false);

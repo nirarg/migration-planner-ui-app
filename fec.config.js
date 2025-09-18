@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   appUrl: '/openshift/migration-assessment',
@@ -74,11 +75,12 @@ module.exports = {
       './UpdateInventory': path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/UpdateInventory.js'),
       './Assessment': path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/Assessment.js'),
       './AssessmentForm': path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/AssessmentForm.js'),
+      './AssessmentUpdate': path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/AssessmentUpdate.js'),
       './AssessmentApi': path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/apis/AssessmentApi.js'),
       './SourceAgentItem':path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/SourceAgentItem.js'),
       './Snapshot':path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/Snapshot.js'),
-      './AssessmentUpdate':path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/AssessmentUpdate.js'),
-
+      './Info': path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/models/Info.js'),
+      './InfoApi': path.resolve(__dirname, 'node_modules/@migration-planner-ui/api-client/dist/apis/InfoApi.js'),
       
     }, 
   },
@@ -94,6 +96,18 @@ module.exports = {
       exclude: /node_modules\/(?!@migration-planner-ui)/
       
     });
+
+    // Add webpack DefinePlugin to inject version info and API config
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.PLANNER_API_BASE_URL': JSON.stringify(
+          process.env.PLANNER_API_BASE_URL || '/api/migration-assessment'
+        ),
+        'process.env.MIGRATION_PLANNER_UI_GIT_COMMIT': JSON.stringify(process.env.MIGRATION_PLANNER_UI_GIT_COMMIT),
+        'process.env.MIGRATION_PLANNER_UI_BUILD_TIME': JSON.stringify(process.env.MIGRATION_PLANNER_UI_BUILD_TIME),
+        'process.env.MIGRATION_PLANNER_UI_VERSION': JSON.stringify(process.env.MIGRATION_PLANNER_UI_VERSION),
+      })
+    );
 
     return config;
   },
