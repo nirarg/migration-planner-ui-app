@@ -30,10 +30,6 @@ spec:
     value: build-tools/Dockerfile
   - name: path-context
     value: .
-  - name: build-args
-    value:
-      - MIGRATION_PLANNER_UI_GIT_COMMIT={{revision}}
-      - MIGRATION_PLANNER_UI_VERSION={{revision}}
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while reducing network traffic.
@@ -197,12 +193,69 @@ spec:
         workspace: workspace
       - name: basic-auth
         workspace: git-auth
+    - name: update-version
+      params:
+      - name: SOURCE_GIT_COMMIT
+        value: $(tasks.clone-repository.results.commit)
+      - name: SOURCE_GIT_TAG
+        value: "{{target_branch}}-pull-request"
+      runAfter:
+      - clone-repository
+      taskSpec:
+        metadata:
+          name: update-version-task
+          labels:
+            app.kubernetes.io/version: "0.1"
+        params:
+        - name: SOURCE_GIT_COMMIT
+          type: string
+        - name: SOURCE_GIT_TAG
+          type: string
+        workspaces:
+        - name: source
+        steps:
+        - name: update-package-json
+          image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+          workingDir: $(workspaces.source.path)/source
+          script: |
+            #!/bin/bash
+            set -e
+
+            # Install jq if not available
+            microdnf install -y jq
+
+            echo "===== Version Update - Before ====="
+            echo "Current package.json version fields:"
+            if [ -f package.json ]; then
+              jq '{uiVersionName, uiGitCommit}' package.json
+            else
+              echo "package.json not found!"
+              exit 1
+            fi
+
+            # Run the version script to update package.json
+            export SOURCE_GIT_COMMIT=$(params.SOURCE_GIT_COMMIT)
+            export SOURCE_GIT_TAG=$(params.SOURCE_GIT_TAG)
+            echo ""
+            echo "Setting version from parameters:"
+            echo "  SOURCE_GIT_COMMIT=${SOURCE_GIT_COMMIT}"
+            echo "  SOURCE_GIT_TAG=${SOURCE_GIT_TAG}"
+            echo ""
+            bash hack/version.sh --update-package-json
+
+            echo ""
+            echo "===== Version Update - After ====="
+            echo "Updated package.json version fields:"
+            jq '{uiVersionName, uiGitCommit}' package.json
+      workspaces:
+      - name: source
+        workspace: workspace
     - name: prefetch-dependencies
       params:
       - name: input
         value: $(params.prefetch-input)
       runAfter:
-      - clone-repository
+      - update-version
       taskRef:
         params:
         - name: name

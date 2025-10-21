@@ -11,10 +11,7 @@ HOST_PORT ?= 8080
 CONTAINERFILE_PATH ?= deploy/dev/Containerfile
 CONTAINERIGNORE_PATH ?= deploy/dev/.containerignore
 
-SOURCE_GIT_COMMIT ?=$(shell git rev-parse "HEAD^{commit}" 2>/dev/null)
-SOURCE_GIT_COMMIT_SHORT ?=$(shell git rev-parse --short "HEAD^{commit}" 2>/dev/null)
-SOURCE_GIT_TAG ?=$(shell git describe --always --tags --abbrev=7 --match '[0-9]*\.[0-9]*\.[0-9]*' --match 'v[0-9]*\.[0-9]*\.[0-9]*' || echo 'v0.0.0-unknown-$(SOURCE_GIT_COMMIT_SHORT)')
-IMAGE_TAG ?= $(SOURCE_GIT_COMMIT)
+IMAGE_TAG ?= $(shell git rev-parse "HEAD^{commit}" 2>/dev/null)
 
 oc: # Verify oc installed, in linux install it if not already installed
 ifeq ($(OC_BIN),)
@@ -41,28 +38,21 @@ install:
 build-standalone: install
 	@echo "Building standalone application..."
 	rm -rf dist-standalone
-	MIGRATION_PLANNER_UI_GIT_COMMIT=$(SOURCE_GIT_COMMIT) \
-	 MIGRATION_PLANNER_UI_VERSION=$(SOURCE_GIT_TAG) \
-	 npm run build:standalone
+	@bash -c '. ./hack/version.sh && npm run build:standalone'
 	@echo "✅ Standalone build completed in dist-standalone/"
 
 # Run the standalone application locally
 run-standalone: install
 	@echo "Running standalone application..."
 	rm -rf dist-standalone
-	MIGRATION_PLANNER_UI_GIT_COMMIT=$(SOURCE_GIT_COMMIT) \
-	 MIGRATION_PLANNER_UI_VERSION=$(SOURCE_GIT_TAG) \
-	 PLANNER_LOCAL_DEV=true \
-	 npm run start:standalone
+	@bash -c '. ./hack/version.sh && PLANNER_LOCAL_DEV=true npm run start:standalone'
 	@echo "✅ Standalone run completed"
 
 # Legacy build target (federated module)
 build: install
 	@echo "Building federated module..."
 	rm -rf dist
-	MIGRATION_PLANNER_UI_GIT_COMMIT=$(SOURCE_GIT_COMMIT) \
-	 MIGRATION_PLANNER_UI_VERSION=$(SOURCE_GIT_TAG) \
-	 npm run build
+	@bash -c '. ./hack/version.sh && npm run build'
 	@echo "✅ Federated build completed in dist/"
 
 lint: install

@@ -1,0 +1,21 @@
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: EnterpriseContractPolicy
+metadata:
+  name: migration-planner-ui-policy
+spec:
+  description: Custom Enterprise Contract policy for migration-planner-ui
+  publicKey: k8s://openshift-pipelines/public-key
+  sources:
+    - name: Release Policies
+      policy:
+        - github.com/enterprise-contract/ec-policies//policy/lib
+        - github.com/enterprise-contract/ec-policies//policy/release
+      data:
+        - github.com/enterprise-contract/ec-policies//data
+  configuration:
+    exclude:
+      # Exclude the update-version inline task from trusted task check
+      # This task updates package.json with version information before build
+      # and is necessary for proper versioning in Konflux builds
+      - trusted_task.trusted:update-version-task

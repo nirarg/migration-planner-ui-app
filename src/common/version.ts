@@ -1,6 +1,8 @@
 import { InfoApi } from '@migration-planner-ui/api-client/apis';
 import { Configuration } from '@migration-planner-ui/api-client/runtime';
 
+import buildManifest from '../../package.json';
+
 // API info interface based on the migration-planner API response
 interface ApiInfo {
   versionName: string;
@@ -32,7 +34,9 @@ export interface VersionInfo {
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getMigrationPlannerUiVersion = () => {
-  return process.env.MIGRATION_PLANNER_UI_VERSION || 'unknown';
+  return (
+    process.env.MIGRATION_PLANNER_UI_VERSION || buildManifest.uiVersionName
+  );
 };
 
 /**
@@ -40,7 +44,9 @@ export const getMigrationPlannerUiVersion = () => {
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const getGitCommit = () => {
-  return process.env.MIGRATION_PLANNER_UI_GIT_COMMIT || 'unknown';
+  return (
+    process.env.MIGRATION_PLANNER_UI_GIT_COMMIT || buildManifest.uiGitCommit
+  );
 };
 
 /**
