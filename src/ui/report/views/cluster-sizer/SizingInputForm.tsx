@@ -33,6 +33,10 @@ import type {
 interface SizingInputFormProps {
   values: SizingFormValues;
   onChange: (values: SizingFormValues) => void;
+  showWorkerNode: boolean;
+  showControlPlane: boolean;
+  showControlPlaneScheduling: boolean;
+  showSmt: boolean;
 }
 
 const sectionHeaderStyle = css`
@@ -56,6 +60,10 @@ const sectionDividerStyle = css`
 export const SizingInputForm: React.FC<SizingInputFormProps> = ({
   values,
   onChange,
+  showWorkerNode,
+  showControlPlane,
+  showControlPlaneScheduling,
+  showSmt,
 }) => {
   const handleClusterModeChange = (
     _event: React.FormEvent<HTMLSelectElement>,
@@ -150,13 +158,6 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
     onChange({ ...values, controlPlaneMemoryGb: parseInt(memory, 10) });
   };
 
-  const showWorkerNode =
-    values.clusterMode === "full-ha" ||
-    values.clusterMode === "hosted-control-plane";
-  const showControlPlane =
-    values.clusterMode === "full-ha" || values.clusterMode === "single-node";
-  const showCheckboxes = values.clusterMode === "full-ha";
-
   return (
     <Form>
       <Grid hasGutter>
@@ -180,48 +181,47 @@ export const SizingInputForm: React.FC<SizingInputFormProps> = ({
           </FormGroup>
         </GridItem>
 
-        {/* Checkboxes for Full HA mode only */}
-        {showCheckboxes && (
-          <>
-            <GridItem span={12}>
-              <Checkbox
-                isLabelWrapped
-                id="control-plane-scheduling"
-                label="Run workloads on control plane nodes"
-                isChecked={values.scheduleOnControlPlane}
-                onChange={handleControlPlaneChange}
-              />
-            </GridItem>
+        {showControlPlaneScheduling && (
+          <GridItem span={12}>
+            <Checkbox
+              isLabelWrapped
+              id="control-plane-scheduling"
+              label="Run workloads on control plane nodes"
+              isChecked={values.scheduleOnControlPlane}
+              onChange={handleControlPlaneChange}
+            />
+          </GridItem>
+        )}
 
-            <GridItem span={12}>
-              <Flex
-                alignItems={{ default: "alignItemsCenter" }}
-                spaceItems={{ default: "spaceItemsSm" }}
-              >
-                <FlexItem>
-                  <Checkbox
-                    isLabelWrapped
-                    id="smt-enabled"
-                    label="Enable SMT/Hyperthreading"
-                    isChecked={values.smtEnabled}
-                    onChange={handleSmtEnabledChange}
-                  />
-                </FlexItem>
-                <FlexItem>
-                  <TextInput
-                    id="smt-threads"
-                    value={values.smtThreads}
-                    onChange={handleSmtThreadsChange}
-                    name="smt-threads"
-                    aria-label="SMT threads"
-                    isDisabled={!values.smtEnabled}
-                    type="number"
-                    className={smtInputStyle}
-                  />
-                </FlexItem>
-              </Flex>
-            </GridItem>
-          </>
+        {showSmt && (
+          <GridItem span={12}>
+            <Flex
+              alignItems={{ default: "alignItemsCenter" }}
+              spaceItems={{ default: "spaceItemsSm" }}
+            >
+              <FlexItem>
+                <Checkbox
+                  isLabelWrapped
+                  id="smt-enabled"
+                  label="Enable SMT/Hyperthreading"
+                  isChecked={values.smtEnabled}
+                  onChange={handleSmtEnabledChange}
+                />
+              </FlexItem>
+              <FlexItem>
+                <TextInput
+                  id="smt-threads"
+                  value={values.smtThreads}
+                  onChange={handleSmtThreadsChange}
+                  name="smt-threads"
+                  aria-label="SMT threads"
+                  isDisabled={!values.smtEnabled}
+                  type="number"
+                  className={smtInputStyle}
+                />
+              </FlexItem>
+            </Flex>
+          </GridItem>
         )}
 
         {/* Worker node section - show for Full HA and HCP */}
