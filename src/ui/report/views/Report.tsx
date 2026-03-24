@@ -1,9 +1,12 @@
+import { css } from "@emotion/css";
 import {
   Alert,
   AlertActionCloseButton,
   Bullseye,
   Button,
   Content,
+  List,
+  ListItem,
   MenuToggle,
   type MenuToggleElement,
   Select,
@@ -20,7 +23,9 @@ import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 
 import { routes } from "../../../routing/Routes";
+import CreateAssessmentModal from "../../assessment/views/CreateAssessmentModal";
 import { AppPage } from "../../core/components/AppPage";
+import CreateAssessmentDropdown from "../../core/components/CreateAssessmentDropdown";
 import { OffScreenRenderer } from "../../core/components/OffScreenRenderer";
 import { AgentStatusView } from "../../environment/views/AgentStatusView";
 import { useReportPageViewModel } from "../view-models/useReportPageViewModel";
@@ -28,6 +33,10 @@ import type { ClusterOption } from "./assessment-report/ClusterView";
 import { Dashboard } from "./assessment-report/Dashboard";
 import { ClusterSizingWizard } from "./cluster-sizer/ClusterSizingWizard";
 import { ExportReportButton } from "./ExportReportButton";
+
+const alertSpacing = css`
+  margin-top: var(--pf-t--global--spacer--md);
+`;
 
 const ReportContent: React.FC = () => {
   const vm = useReportPageViewModel();
@@ -209,18 +218,43 @@ const ReportContent: React.FC = () => {
         </Stack>
       }
       alerts={
-        vm.exportError ? (
-          <Alert
-            variant="danger"
-            isInline
-            title="An error occurred"
-            actionClose={
-              <AlertActionCloseButton onClose={() => vm.clearExportError()} />
-            }
-          >
-            <p>{vm.exportError?.message}</p>
-          </Alert>
-        ) : null
+        <div className={alertSpacing}>
+          {vm.hasMissingMetrics && (
+            <Alert
+              variant="warning"
+              isInline
+              title="Limited recommendation: required metrics are missing."
+            >
+              <p>
+                Add the following to improve accuracy and create a new
+                assessment:
+              </p>
+              <List>
+                {vm.missingMetrics.map((metric) => (
+                  <ListItem key={metric}>{metric}</ListItem>
+                ))}
+              </List>
+              <div className={alertSpacing}>
+                <CreateAssessmentDropdown
+                  toggleLabel="Create a new assessment"
+                  onSelectRvtools={() => vm.openRvtoolsModal()}
+                />
+              </div>
+            </Alert>
+          )}
+          {vm.exportError && (
+            <Alert
+              variant="danger"
+              isInline
+              title="An error occurred"
+              actionClose={
+                <AlertActionCloseButton onClose={() => vm.clearExportError()} />
+              }
+            >
+              <p>{vm.exportError?.message}</p>
+            </Alert>
+          )}
+        </div>
       }
       headerActions={
         vm.scopedClusterView ? (
@@ -337,6 +371,24 @@ const ReportContent: React.FC = () => {
           />
         </OffScreenRenderer>
       ) : null}
+
+      <CreateAssessmentModal
+        isOpen={vm.isRvtoolsModalOpen}
+        onClose={vm.closeRvtoolsModal}
+        onSubmit={(_name, file, _mode) => {
+          if (file) {
+            void vm.createRVToolsJob(_name, file);
+          }
+        }}
+        mode="rvtools"
+        isLoading={vm.isCreatingJob}
+        error={vm.jobCreateError}
+        isJobProcessing={vm.isJobProcessing}
+        jobProgressValue={vm.jobProgressValue}
+        jobProgressLabel={vm.jobProgressLabel}
+        jobError={vm.jobError}
+        isNavigatingToReport={vm.isNavigatingToReport}
+      />
     </AppPage>
   );
 };
