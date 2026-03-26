@@ -18,6 +18,8 @@ jobs:
         with:
           # Fetch all history to ensure we have the master branch's commits
           fetch-depth: 0
+          # Use PAT to allow triggering other workflows
+          token: ${{ secrets.WORKFLOW_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
         run: |
@@ -81,4 +83,4 @@ jobs:
             fi
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN || secrets.GITHUB_TOKEN }}
