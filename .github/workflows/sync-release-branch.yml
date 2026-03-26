@@ -61,7 +61,12 @@ jobs:
             else
               echo "Branch $ACTIVE_RELEASE_BRANCH is out of sync. Syncing with $MAIN_BRANCH."
 
-              if git push origin $MAIN_BRANCH:$ACTIVE_RELEASE_BRANCH; then
+              # Checkout the release branch and reset to master
+              git checkout -B $ACTIVE_RELEASE_BRANCH origin/$ACTIVE_RELEASE_BRANCH
+              git reset --hard origin/$MAIN_BRANCH
+
+              # Push to trigger workflows on the release branch
+              if git push origin $ACTIVE_RELEASE_BRANCH; then
                 echo "Successfully synced $ACTIVE_RELEASE_BRANCH to $MAIN_BRANCH."
               else
                 echo "Failed to sync $ACTIVE_RELEASE_BRANCH."
