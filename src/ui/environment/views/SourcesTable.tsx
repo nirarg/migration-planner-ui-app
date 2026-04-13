@@ -4,15 +4,11 @@ import {
   Dropdown,
   DropdownItem,
   DropdownList,
-  Icon,
   InputGroup,
   InputGroupItem,
   MenuToggle,
   type MenuToggleElement,
-  Popover,
   SearchInput,
-  Split,
-  SplitItem,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -22,13 +18,10 @@ import {
   ArrowLeftIcon,
   EllipsisVIcon,
   FilterIcon,
-  InfoCircleIcon,
   PlusCircleIcon,
   TimesIcon,
 } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { t_global_color_status_success_default as globalSuccessColor } from "@patternfly/react-tokens/dist/js/t_global_color_status_success_default";
-import { t_global_color_status_warning_default as globalWarningColor } from "@patternfly/react-tokens/dist/js/t_global_color_status_warning_default";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -42,25 +35,9 @@ import { AgentStatusView } from "./AgentStatusView";
 import { Columns } from "./Columns";
 import { EnvironmentEmptyState } from "./EnvironmentEmptyState";
 import { UploadInventoryAction } from "./UploadInventoryAction";
+import { VersionStatus } from "./VersionStatus";
 
 const VALUE_NOT_AVAILABLE = "-";
-
-const versionStatusLatest = css`
-  color: ${globalSuccessColor.value};
-`;
-
-const versionStatusOutdated = css`
-  color: ${globalWarningColor.value};
-`;
-
-const versionStatusSplit = css`
-  gap: 0.5rem;
-`;
-
-const versionInfoButton = css`
-  padding: 0;
-  min-width: auto;
-`;
 
 const tableContainerStyle = css`
   margin-top: 1em;
@@ -581,39 +558,14 @@ export const SourcesTable: React.FC<SourceTableProps> = ({
                     dataLabel={Columns.VersionStatus}
                     className={tableCellTop}
                   >
-                    {source.agentVersionWarning ? (
-                      <Split hasGutter className={versionStatusSplit}>
-                        <SplitItem>
-                          <span className={versionStatusOutdated}>
-                            Outdated
-                          </span>
-                        </SplitItem>
-                        <SplitItem>
-                          <Popover
-                            aria-label="Version warning"
-                            headerContent="Version Warning"
-                            headerComponent="h2"
-                            bodyContent={
-                              <div>{source.agentVersionWarning}</div>
-                            }
-                          >
-                            <Button
-                              variant="plain"
-                              aria-label="Version warning info"
-                              className={versionInfoButton}
-                            >
-                              <Icon isInline>
-                                <InfoCircleIcon
-                                  color={globalWarningColor.value}
-                                />
-                              </Icon>
-                            </Button>
-                          </Popover>
-                        </SplitItem>
-                      </Split>
-                    ) : (
-                      <span className={versionStatusLatest}>Up to date</span>
-                    )}
+                    <VersionStatus
+                      displayStatus={source.displayStatus}
+                      isUploadedManually={
+                        Boolean(source.onPremises) &&
+                        source.inventory !== undefined
+                      }
+                      agentVersionWarning={source.agentVersionWarning}
+                    />
                   </Td>
                   <Td dataLabel={Columns.Hosts} className={tableCellTop}>
                     {source?.inventory?.vcenter?.infra.totalHosts ??
